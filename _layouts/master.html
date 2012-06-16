@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ page.title }}</title>
+    <script charset="utf-8" src="http://widgets.twimg.com/j/2/widget.js"></script>
+</head>
+
+<body>
+<h1>{{ page.title }}</h1>
+
+{{ content }}
+
+
+<script>
+new TWTR.Widget({
+  version: 2,
+  type: 'profile',
+  rpp: 4,
+  interval: 30000,
+  width: 250,
+  height: 300,
+  theme: {
+    shell: {
+      background: '#e6e6e6',
+      color: '#635f63'
+    },
+    tweets: {
+      background: '#f2f2f2',
+      color: '#696969',
+      links: '#458a96'
+    }
+  },
+  features: {
+    scrollbar: true,
+    loop: false,
+    live: true,
+    behavior: 'all'
+  }
+}).render().setUser('sangeethlabs').start();
+</script>
+</body>
+</html>
