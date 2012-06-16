@@ -4,3 +4,11 @@ title: Sangeethlabs
 ---
 
 A *simple* example.
+
+{% highlight java %}
+class Greeter {
+   public String greet() {
+      return "Hello";
+   }
+}
+{% endhighlight %}
