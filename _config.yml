@@ -2,4 +2,4 @@ auto: true
 server: true
 permalink: none
 pygments: true
-markdown: maruku
+markdown: redcarpet
