@@ -1,0 +1,28 @@
+---
+layout: post
+title: API Authorization Using Spring Security
+tags: Spring Security, Design, Maven, MySQL, Hibernate
+excerpt: Various APIs of Spring Security helping us to achieve API level security - Design recommendations - Using Spring Security with JPA/Hibernate and many more. 
+---
+
+h2. Overview
+
+While building platforms or frameworks, it may be required to provide API level security. There are different ways of achieving this.
+
+# Role based access - For example, A user with ADMIN role can create/delete users.
+# Domain-object based access. For example, An user may be given view-only access to some set of files. So this user will be denied access to create/update/delete APIs.
+
+Spring Security provides a nice set of abstractions for achieving this. This topic will focus on the following
+
+# Various APIs of Spring Security helping us to achieve API level security
+# How to leverage Spring Security ACL features with an existing data-model (instead of using OOB model)
+# Some practical applications
+# Recommended Design. For example, out-of-the-box Spring Security ACL library require a set of ACL tables, where the Ids of the Domain Objects are stored with permissions. If the Domain Object gets removed from the system, we may need to remove it references from the ACL table as well. How to do it ?.
+# Using Spring Security with JPA/Hibernate
+
+
+h2. ACL Tables
+
+The list of tables Spring Security API expects in the database are as shown below. 
+
+!images/acl_table_diagram.png(Spring Security ACL Table Model)!
