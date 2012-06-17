@@ -99,13 +99,32 @@
 																<div
 																	class="post-10 page type-page status-publish hentry fpost"
 																	id="post-10">
+
+																	<div class="post-meta fix">
+
+																		<div class="post-header fix post-nothumb" style="">
+																			<div class="post-title-section fix">
+
+																				<div class="post-title fix">
+
+																					<h1 class="entry-title">{{ page.title }}</h1>
+																					<div class="metabar">
+																						<em><span class="sword"> posted on</span> <span
+																							class="date time published"
+																							title="{{ page.date | date_to_long_string }}">
+																							{{ page.date | date_to_long_string }}
+																							</span>
+																						</em>
+																					</div>
+																				</div>
+																			</div>
+
+
+																		</div>
+																	</div>
+
 																	<div class="entry_wrap fix">
 																		<div class="entry_content">
-																		
-																		<h1>{{ page.title }}</h1>
-																		<span></span>
-																		<hr/>
-																		
 																		{{ content }}
 																		</div>
 																		<div class="tags">&nbsp;</div>
