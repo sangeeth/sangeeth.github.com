@@ -55,7 +55,7 @@ body, .font1, .font-primary, .commentlist {
     width: 640px;
 }
 .one-sidebar-right #pagelines_content #sidebar1, .one-sidebar-right #buddypress-page #sidebar1 {
-    width: 320px;
+    width: 250px;
 }
 .one-sidebar-right #pagelines_content #sidebar2, .one-sidebar-right #buddypress-page #sidebar2 {
     width: 0;
