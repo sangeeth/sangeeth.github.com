@@ -57,4 +57,4 @@ By default, the AclService expects a function named "identity", hence if you don
 # classIdentityquery
 # sidIdentityQuery
 
-Thanks to the following post: http://forum.springsource.org/showthread.php?67461-call-identity-fails-on-MySQL
+Thanks to the following post: "http://forum.springsource.org/showthread.php?67461-call-identity-fails-on-MySQL":http://forum.springsource.org/showthread.php?67461-call-identity-fails-on-MySQL

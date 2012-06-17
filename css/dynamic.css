@@ -52,7 +52,7 @@ body, .font1, .font-primary, .commentlist {
     width: 0;
 }
 .one-sidebar-right #pagelines_content #column-main, .one-sidebar-right .wmain, .one-sidebar-right #buddypress-page #container {
-    width: 640px;
+    width: 700px;
 }
 .one-sidebar-right #pagelines_content #sidebar1, .one-sidebar-right #buddypress-page #sidebar1 {
     width: 250px;

@@ -3,15 +3,11 @@
 		id="recent-posts-2"><div class="widget-pad">
 			<h3 class="widget-title">Recent Posts</h3>
 			<ul>
-				<li><a
-					title="Why we named our company as “Corvid Systems” ?"
-					href="http://corvidsystems.com/why-we-named-our-company-as-corvid-systems/">API
-						Authorization using Spring Security</a>
+{% for post in site.posts limit:5 %}
+				<li>
+				<a title="{{ post.title }}" href="{{ post.url }}">{{ post.title }}</a>
 				</li>
-				<li><a title="Made our first step !"
-					href="http://corvidsystems.com/hello-world/">A
-						nice formula for using Dojo in a Java web project</a>
-				</li>
+{% endfor %}			
 			</ul>
 		</div>
 	</li>

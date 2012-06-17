@@ -1,0 +1,12 @@
+---
+layout: post
+title: Using Dojo in a Java Web Application 
+tags: Dojo, Java, JSP, Servlet
+---
+
+h2. Overview
+
+Its tricky to use Dojo in the presentation tier of a Java web application. Many a times, we may end up creating a single URL application or very slow application.
+Of course we will blame it on Dojo and say JQuery is better. After two years of struggle with Dojo, I finally believe I got the right formula for using Dojo in a Java Web Application.
+
+
