@@ -196,6 +196,7 @@ blockquote, input, textarea, .searchform .searchfield, .wp-caption, .widget-defa
 }
 blockquote, input, textarea, .searchform .searchfield, .wp-caption, .widget-default, #buddypress-page div.activity-comments form .ac-textarea, #buddypress-page form#whats-new-form #whats-new-textarea, #grandchildnav.widget, fpost .post-thumb img, .clip .clip-thumb img, .author-thumb img {
     border-top-color: #DDDDDD;
+    width: 205px;
 }
 #feature-footer .feature-footer-pad {
     border-left-color: #FFFFFF;
