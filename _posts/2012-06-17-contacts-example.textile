@@ -1,0 +1,56 @@
+---
+layout: post
+title: Contacts Example
+tags: Spring Security, Sample, Maven, MySQL, Hibernate
+---
+
+h1. Introduction
+
+The example found in Spring Source uses Gradle. So I converted it into a Maven project. Then instead of HSQLDB, I changed few things to run on MySQL.
+
+h1. Using MySQL
+
+By default the sample uses HSQLDB. In order to use MySQL, we need to make some changes in the following Spring bean definition files
+# applicationContext-common-authorization.xml
+# applicationContext-common-business.xml
+
+h2. applicationContext-common-authorization.xml
+
+Define "dataSource" bean as shown below
+{% highlight xml %}
+   <bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+      <property name="driverClassName" value="com.mysql.jdbc.Driver"/>
+      <property name="url" value="jdbc:mysql://localhost/springworks_security_contacts"/>
+      <property name="username" value="springworks"/>
+      <property name="password" value="springworks"/>
+   </bean> 
+{% endhighlight %}
+
+To "dataSourcePopulator" bean, specify the MySQL specific DDL script ''/springworks_security_contacts.mysql.ddl.sql'' as shown below.
+{% highlight xml %}
+   <bean id="dataSourcePopulator" class="sample.contact.DataSourcePopulator">
+      <property name="dataSource" ref="dataSource"/>
+      <property name="mutableAclService" ref="aclService"/>
+      <property name="platformTransactionManager" ref="transactionManager"/>
+      <property name="createScript" value="/springworks_security_contacts.mysql.ddl.sql"/>
+   </bean>
+{% endhighlight %}
+
+h2. applicationContext-common-business.xml
+
+Define the "aclService" bean as shown below
+{% highlight xml %}
+  <bean id="aclService" class="org.springframework.security.acls.jdbc.JdbcMutableAclService">
+    <constructor-arg ref="dataSource"/>
+    <constructor-arg ref="lookupStrategy"/>
+    <constructor-arg ref="aclCache"/>
+    <property name="classIdentityQuery" value="SELECT @@IDENTITY"/> 
+    <property name="sidIdentityQuery" value="SELECT @@IDENTITY"/>
+  </bean>
+{% endhighlight %}
+
+By default, the AclService expects a function named "identity", hence if you don't specify the following properties, ''DataSourcePopulator'' will error out with SQL exception.
+# classIdentityquery
+# sidIdentityQuery
+
+Thanks to the following post: http://forum.springsource.org/showthread.php?67461-call-identity-fails-on-MySQL
