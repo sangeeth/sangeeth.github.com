@@ -2,6 +2,7 @@
 layout: post
 title: Using Dojo in a Java Web Application 
 tags: Dojo, Java, JSP, Servlet
+excerpt: A simple formula for using Dojo in a Java web application
 ---
 
 h2. Overview
