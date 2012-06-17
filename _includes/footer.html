@@ -31,6 +31,7 @@
 			<ul class="latest_posts">
 				<li class="list-item fix">
 					<div class="list_item_text">
+{% for post in site.posts limit:1 %}					
 						<h5>
 							<a class="list_text_link"
 								href="{{ post.url }}"><span
@@ -38,6 +39,7 @@
 							</a>
 						</h5>
 						<div class="list-excerpt">{{ post.excerpt }}.&nbsp;[&hellip;]</div>
+{% endfor %}
 					</div>
 				</li>
 			</ul>
