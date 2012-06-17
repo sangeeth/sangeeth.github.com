@@ -35,7 +35,7 @@ body, .font1, .font-primary, .commentlist {
     width: 960px;
 }
 #primary-nav ul.main-nav {
-    width: 740px;
+    width: 700px;
 }
 .fullwidth #pagelines_content #column-main, .fullwidth .wmain, .fullwidth #buddypress-page #container {
     width: 960px;
@@ -61,7 +61,7 @@ body, .font1, .font-primary, .commentlist {
     width: 0;
 }
 .one-sidebar-right #pagelines_content #column-wrap, .one-sidebar-right #buddypress-page #container {
-    width: 640px;
+    width: 700px;
 }
 .one-sidebar-right #pagelines_content #sidebar-wrap, .one-sidebar-right #buddypress-page #sidebar-wrap {
     width: 250px;
