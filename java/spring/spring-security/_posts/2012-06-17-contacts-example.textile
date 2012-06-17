@@ -18,12 +18,12 @@ h2. applicationContext-common-authorization.xml
 
 Define "dataSource" bean as shown below
 {% highlight xml %}
-   <bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
-      <property name="driverClassName" value="com.mysql.jdbc.Driver"/>
-      <property name="url" value="jdbc:mysql://localhost/springworks_security_contacts"/>
-      <property name="username" value="springworks"/>
-      <property name="password" value="springworks"/>
-   </bean> 
+<bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+  <property name="driverClassName" value="com.mysql.jdbc.Driver"/>
+  <property name="url" value="jdbc:mysql://localhost/springworks_security_contacts"/>
+  <property name="username" value="springworks"/>
+  <property name="password" value="springworks"/>
+ </bean> 
 {% endhighlight %}
 
 To "dataSourcePopulator" bean, specify the MySQL specific DDL script ''/springworks_security_contacts.mysql.ddl.sql'' as shown below.
