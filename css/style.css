@@ -2,7 +2,7 @@
 body {
     background-image: url("./images/bg_home.png");
     background-repeat: repeat;
-    font-size: 87.5%;
+    font-size: 80% !important;
     height: 100%;
     line-height: 1.6em;
     padding-top: 5px;
@@ -456,6 +456,10 @@ a.site-title {
     text-align: right;
     width: 22px;
 }
+
+.icons .githublink {
+    background: url("./images/github-sprite.png") no-repeat 0 0 transparent;
+}
 .icons .twitterlink {
     background: url("./images/sprite-socialicons.png") no-repeat scroll -22px 0 transparent;
 }
@@ -470,6 +474,10 @@ a.site-title {
 }
 .icons .rsslink {
     background: url("./images/sprite-socialicons.png") no-repeat scroll 0 0 transparent;
+}
+
+.icons .githublink:hover {
+    background: url("./images/github-sprite.png") no-repeat scroll -22px 0 transparent;
 }
 .icons .twitterlink:hover {
     background-position: -22px -22px;
