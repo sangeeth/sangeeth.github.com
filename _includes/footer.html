@@ -13,13 +13,13 @@
 			<div class="footer-links list-links">
 				<ul>
 					<li class="page_item page-item-10 current_page_item"><a
-						href="http://corvidsystems.com/">Home</a></li>
+						href="/index.html">Home</a></li>
 					<li class="page_item page-item-22"><a
-						href="http://corvidsystems.com/blog/">Projects</a></li>
+						href="/projects.html">Projects</a></li>
 					<li class="page_item page-item-17"><a
-						href="http://corvidsystems.com/contact-us/">Blog</a></li>
+						href="/blog.html">Blog</a></li>
 					<li class="page_item page-item-2"><a
-						href="http://corvidsystems.com/about-us/">Archive</a></li>
+						href="/archives.html">Archives</a></li>
 				</ul>
 			</div>
 
@@ -38,7 +38,11 @@
 								class="list-title">{{ post.title }}</span>
 							</a>
 						</h5>
-						<div class="list-excerpt">{{ post.excerpt }}.&nbsp;[&hellip;]</div>
+						<div class="list-excerpt">{{ post.excerpt }}.&nbsp;
+						<a class="list_text_link"
+						   title="Read more"
+						   href="{{ post.url }}">[&hellip;]
+						</a></div>
 {% endfor %}
 					</div>
 				</li>
