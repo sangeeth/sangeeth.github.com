@@ -17,7 +17,7 @@ By default the sample uses HSQLDB. In order to use MySQL, we need to make some c
 
 h3. applicationContext-common-authorization.xml
 
-Define "dataSource" bean as shown below
+Define @dataSource@ bean as shown below
 
 {% highlight xml %}
 <bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
@@ -28,20 +28,20 @@ Define "dataSource" bean as shown below
  </bean> 
 {% endhighlight %}
 
-To "dataSourcePopulator" bean, specify the MySQL specific DDL script ''/springworks_security_contacts.mysql.ddl.sql'' as shown below.
+To @dataSourcePopulator@ bean, specify the MySQL specific DDL script @/springworks_security_contacts.mysql.ddl.sql@ as shown below.
 
 {% highlight xml %}
-   <bean id="dataSourcePopulator" class="sample.contact.DataSourcePopulator">
-      <property name="dataSource" ref="dataSource"/>
-      <property name="mutableAclService" ref="aclService"/>
-      <property name="platformTransactionManager" ref="transactionManager"/>
-      <property name="createScript" value="/springworks_security_contacts.mysql.ddl.sql"/>
-   </bean>
+<bean id="dataSourcePopulator" class="sample.contact.DataSourcePopulator">
+    <property name="dataSource" ref="dataSource"/>
+    <property name="mutableAclService" ref="aclService"/>
+    <property name="platformTransactionManager" ref="transactionManager"/>
+    <property name="createScript" value="/springworks_security_contacts.mysql.ddl.sql"/>
+</bean>
 {% endhighlight %}
 
 h3. applicationContext-common-business.xml
 
-Define the "aclService" bean as shown below
+Define the @aclService@ bean as shown below
 
 {% highlight xml %}
   <bean id="aclService" class="org.springframework.security.acls.jdbc.JdbcMutableAclService">
@@ -53,7 +53,7 @@ Define the "aclService" bean as shown below
   </bean>
 {% endhighlight %}
 
-By default, the AclService expects a function named "identity", hence if you don't specify the following properties, ''DataSourcePopulator'' will error out with SQL exception.
+By default, the AclService expects a function named @identity@, hence if you don't specify the following properties, @DataSourcePopulator@ will error out with SQL exception.
 # classIdentityquery
 # sidIdentityQuery
 
