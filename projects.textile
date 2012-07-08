@@ -3,14 +3,20 @@ layout: master
 title: Projects
 ---
 
-h1. Jay
+h1. Projects
+
+h2. Jay
 
 An open source Java SDK. It includes several useful foundation APIs and tools. The APIs are primarily useful for building standalone application and web applications.
 
-h1. i18nHub
+h2. i18nHub
 
 Most modern day software are translated in multiple languages used across the globe. 
 Primarily, the web applications. There are plethora of computer languages being used to develop these software. 
 Irrespective of software or language, the strings or messages used in the application need to be translated.
 
 i18nHub helps in providing a common platform for developers and translators, to get the strings in a software translated with almost zero involvement from the developers.
+
+h2. JsSDK
+
+An open source JavaScript SDK. 
