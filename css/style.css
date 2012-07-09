@@ -521,14 +521,7 @@ a.site-title {
     text-align: right;
 }
 .main_nav li a {
-    -moz-border-bottom-colors: none;
-    -moz-border-image: none;
-    -moz-border-left-colors: none;
-    -moz-border-right-colors: none;
-    -moz-border-top-colors: none;
-    border-color: transparent transparent -moz-use-text-color;
-    border-style: solid solid none;
-    border-width: 1px 1px medium;
+    border: none
     display: block;
     padding: 10px 15px;
     text-decoration: none;
@@ -1426,4 +1419,13 @@ table {
 pre {
    border: lightgrey thin dashed;
    padding: 10px;
+/*
+  Thanks to the article at the following URI 
+  http://labnol.blogspot.in/2006/10/html-css-trick-for-displaying-code.html
+*/   
+   white-space: pre-wrap; /* css-3 */
+   white-space: -moz-pre-wrap !important; /* Mozilla, since 1999 */
+   white-space: -pre-wrap; /* Opera 4-6 */
+   white-space: -o-pre-wrap; /* Opera 7 */
+   word-wrap: break-word; /* Internet Explorer 5.5+ */   
 }
