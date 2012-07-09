@@ -26,7 +26,7 @@ mkdir bin
 <li>
 Open your favourite text editor, create a new file and write the following code
 
-{% highlight java  %}
+{% highlight java %}
 package com.sangeethlabs.jni;
 
 public class Fortran {
@@ -119,7 +119,7 @@ JNIEXPORT jint JNICALL Java_com_sangeethlabs_jni_Fortran_sum
 <li>
 Open your favourite text editor, create a new file and write the following C++ code
 
-{% highlight cpp  %}
+{% highlight cpp %}
 #include "com_sangeethlabs_jni_Fortran.h"
 
 #include <jni.h>
