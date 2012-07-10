@@ -1,0 +1,335 @@
+---
+layout: post
+title: Limitations in Conventional Exception Handling
+tags: Java, Exception, Error Code
+excerpt: This article investigates the common problems in conventional exception handling and lists down the limitations.
+---
+
+h2. Introduction
+
+Exception handling is an integral part of Java language ever since its birth. In this article, we will identify the known limitations in conventional exception handling. 
+
+h2. Identifying the Limitations
+
+Let us assume that we were asked to develop a simple API to perform file copy. Let us assume that the skeleton of the API is as shown below
+
+{% highlight java %}
+public static class FileCopyAPI {
+  public static void copy(File srcFile, File destFile, boolean overwrite) throws IOException {
+    . . .
+    . . .
+  }
+}
+{% endhighlight %}
+
+The API may need to throw an IOException under the following circumstances
+* @srcFile@ is not found
+* @srcFile@ is not a file
+* @srcFile@ is same as @destFile@
+* @destFile@ already exists and @overwrite@ is @false@
+* Unable to create the parent directories of the destination file (or directory)
+* @IOException@ occurred while actually writing the file. (May be due to out of disk space)
+
+So to capture the above mentioned situations and inform the caller about an exception state, we may implement the API as shown below
+
+{% highlight java %}
+public class FileCopyAPI {
+   public static void copy(File srcFile, File destFile, boolean overwrite) throws IOException {
+      if (!srcFile.exists()) {
+         throw new FileNotFoundException(srcFile.toString());
+      }
+      if (!srcFile.isFile()) {
+         throw new IOException(String.format("%s is not a file",srcFile.toString()));
+      }
+      if (destFile.isDirectory()) {
+         destFile = new File(destFile,srcFile.getName());
+      }
+      if (srcFile.equals(destFile)) {
+         throw new IOException(String.format("Cannot copy the file %s onto itself.",srcFile.toString()));
+      }
+      if (!overwrite&&destFile.exists()) {
+         throw new IOException(String.format("Already a file named %s exists at the destination.",destFile.toString()));
+      }
+      File destDir = destFile.getParentFile();
+      if (!destDir.exists()) {
+         if (!destDir.mkdirs()) {
+            throw new IOException("Failed to create the parent directories");
+         }
+      }
+      try {
+         BufferedInputStream bin = new BufferedInputStream(new FileInputStream(srcFile));
+         BufferedOutputStream bout = new BufferedOutputStream(new FileOutputStream(destFile));
+         byte[] buffer = new byte[512];
+         int len = -1;
+         while((len=bin.read(buffer))!=-1) {
+            bout.write(buffer, 0, len);
+            bout.flush();
+         }
+         bout.close();
+         bin.close();
+      } catch (IOException e) {
+         throw new IOException(String.format("Unexpected error while copying %s to %s",srcFile,destFile), e);
+      }
+   }
+}
+{% endhighlight %}
+
+The problem which can be noticed immediately is that the error messages are hard coded. To avoid it, we may keep the error messages in a resource bundle. 
+
+bq(#limit1). *LIMITATION #1*
+ The constructors of default exception classes take string as the message. To make the code I18N compliant, additional code need to be written to fetch the message and pass it to the constructor.
+
+To solve the problem, we may split the original class into three classes namely
+# @FileCopyAPI@ – The actual implementation
+# @FileCopyAPIErrorId@ – The interface enumerating the possible error scenarios the @FileCopyAPI@ will face/handle as shown below
+  {% highlight java %}
+public static interface FileCopyAPIErrorId {
+   public String NOT_A_FILE="NOT_A_FILE"; 
+   public String CANNOT_COPY_FILE_ONTO_ITSELF="CANNOT_COPY_FILE_ONTO_ITSELF";
+   public String TARGET_FILE_ALREADY_EXISTS="TARGET_FILE_ALREADY_EXISTS";
+   public String PARENT_DIRECTORY_CREATION_FAILED="PARENT_DIRECTORY_CREATION_FAILED";
+   public String FILE_COPY_FAILED="FILE_COPY_FAILED";
+}
+{% endhighlight %}
+# @FileCopyAPIResourceBundle@ – The resource bundle class containing format-able strings for each error id as shown below 
+  {% highlight java %}
+public class FileCopyAPIResourceBundle extends ListResourceBundle { 
+   private static final Object [][] contents = { 
+      {FileCopyAPIErrorId.NOT_A_FILE, "%s is not a file."}, 
+      {FileCopyAPIErrorId.CANNOT_COPY_FILE_ONTO_ITSELF, "Cannot copy the file %s onto itself."}, 
+      {FileCopyAPIErrorId.PARENT_DIRECTORY_CREATION_FAILED, "Failed to create the parent directories."},
+      {FileCopyAPIErrorId.TARGET_FILE_ALREADY_EXISTS, "Already a file named %s exists at the destination."}, 
+      {FileCopyAPIErrorId.FILE_COPY_FAILED,"Unexpected error while copying %s to %s."} 
+   }; 
+   public Object [][] getContents() { 
+      return contents; 
+   } 
+}
+{% endhighlight %}
+
+So the API implementation gets a face-lift as shown below
+
+{% highlight java %}
+public class FileCopyAPI {
+   public static void copy(File srcFile, File destFile, boolean overwrite) throws IOException {
+      ResourceBundle resourceBundle = ResourceBundle.getBundle("FileCopyAPIResourceBundle");
+      if (!srcFile.exists()) {
+         throw new FileNotFoundException(srcFile.toString());
+      }
+      if (!srcFile.isFile()) {
+         String message = resourceBundle.getString(FileCopyAPIErrorId.NOT_A_FILE);
+         throw new IOException(String.format(message,srcFile.toString()));
+      }
+      if (destFile.isDirectory()) {
+         destFile = new File(destFile,srcFile.getName());
+      }
+      if (srcFile.equals(destFile)) {
+         String message = resourceBundle.getString(FileCopyAPIErrorId.CANNOT_COPY_FILE_ONTO_ITSELF);
+         throw new IOException(String.format(message,srcFile.toString()));
+      }
+      if (!overwrite&&destFile.exists()) {
+         String message = resourceBundle.getString(FileCopyAPIErrorId.CANNOT_COPY_FILE_ONTO_ITSELF);
+         throw new IOException(String.format(message,destFile.toString()));
+      }
+      File destDir = destFile.getParentFile();
+      if (!destDir.exists()) {
+         if (!destDir.mkdirs()) {
+            String message = resourceBundle.getString(FileCopyAPIErrorId.PARENT_DIRECTORY_CREATION_FAILED);
+            throw new IOException(message);
+         }
+      }
+      try {
+         . . .
+         . . .
+         . . .
+      } catch (IOException e) {
+         String message = resourceBundle.getString(FileCopyAPIErrorId.FILE_COPY_FAILED);
+         throw new IOException(String.format(message,srcFile,destFile), e);
+      }
+   }
+}
+{% endhighlight %}
+
+It is very much possible that the resource bundles do not have all error messages mapped, as expected by the code. In such a scenario, there is a possibility that the call @ResourceBundle::getString@ throw @java.util.MissingResourceException@. So to keep the API implementation safe, it is recommended to handle this exception appropriately. This means, each call to resource bundle need to be surrounded by an exception handling block. Probably, we may want move this message fetching logic to a common utility class as shown below
+
+{% highlight java %}
+public class ResourceHelper {
+    public static String getString(ResourceBundle resourceBundle, String key) {
+        String message = null;
+        try {
+            message = resourceBundle.getString(key);
+        } catch(MissingResourceException e) {
+            message = key;
+        }
+        return message;
+    }
+}
+{% endhighlight %}
+
+Though the above implementation is pretty ordinary, let us use it in @FileCopyAPI@. So our API implementation will become as shown below and also I18N compliant !
+
+{% highlight java %}
+public class FileCopyAPI {
+   public static void copy(File srcFile, File destFile, boolean overwrite) throws IOException {
+      ResourceBundle resourceBundle =
+      ResourceBundle.getBundle("FileCopyAPIResourceBundle");
+      if (!srcFile.exists()) {
+         throw new FileNotFoundException(srcFile.toString());
+      }
+      if (!srcFile.isFile()) {
+         String message = ResourceHelper.getString(resourceBundle, FileCopyAPIErrorId.NOT_A_FILE);
+         throw new IOException(String.format(message,srcFile.toString()));
+      }
+      if (destFile.isDirectory()) {
+         destFile = new File(destFile,srcFile.getName());
+      }
+      if (srcFile.equals(destFile)) {
+         String message = ResourceHelper.getString(resourceBundle, FileCopyAPIErrorId.CANNOT_COPY_FILE_ONTO_ITSELF);
+         throw new IOException(String.format(message,srcFile.toString()));
+      }
+      if (!overwrite&&destFile.exists()) {
+         String message = ResourceHelper.getString(resourceBundle, FileCopyAPIErrorId.TARGET_FILE_ALREADY_EXISTS);
+         throw new IOException(String.format(message,destFile.toString()));
+      }
+      File destDir = destFile.getParentFile();
+      if (!destDir.exists()) {
+         if (!destDir.mkdirs()) {
+            String message = ResourceHelper.getString(resourceBundle, FileCopyAPIErrorId.PARENT_DIRECTORY_CREATION_FAILED);
+            throw new IOException(message);
+         }
+      }
+      try {
+         . . .
+         . . .
+         . . .
+      } catch (IOException e) {
+         String message = ResourceHelper.getString(resourceBundle,FileCopyAPIErrorId.FILE_COPY_FAILED);
+         throw new IOException(String.format(message,srcFile,destFile), e);
+      }
+    }
+}
+{% endhighlight %}
+
+Now let us identify the issues which will be faced by the calling routine. The caller may invoke @FileCopyAPI@ as shown below
+
+{% highlight java %}
+File srcFile = new File("/home/sangeeth/");
+File destFile = new File("/home/sangeeth/hello.txt");
+try {
+   FileCopyAPI.copy(srcFile, destFile, true);
+} catch(IOException e) {
+   // Wonder what is the cause
+}
+{% endhighlight %}
+
+Since the implementation expects @srcFile@ to be a file, the copy API will throw @java.io.IOException@ with the message associated to @FileCopyAPIErrorId.NOT_A_FILE@. But, how can the caller programmatically identify the cause. 
+
+bq(#limit2). *LIMITATION #2* 
+The standard exception objects carry only the formatted message. It does not assist the calling routine to programmatically identify the cause.
+
+One may argue that, we may create separate Exception classes for each type of exception state. If we accept the argument, we will end up creating separate Exception classes for each error id, enumerated by @FileCopyErrorId class@, i.e., five Exception classes for our @FileCopyAPI@. Then, the calling routines have to have five catch blocks. It is neither simple nor neat.
+
+One other possible way is to create a special Exception class, which can carry the error id along with the message. For example, to address our API needs, let us create an Exception class named @FileCopyAPIException@ and implement it as shown below
+
+{% highlight java %}
+public class FileCopyAPIException extends IOException {
+   private String errorId;
+   public FileCopyAPIException(String errorId, String message) {
+      super(message);
+      this.errorId = errorId;
+   } 
+   public FileCopyAPIException(String errorId, String message, Throwable cause) {
+      super(message, cause);
+      this.errorId = errorId;
+   }
+   public String getErrorId() {
+      return errorId;
+   }
+}
+{% endhighlight %}
+
+So our implementation gets a face-left again as shown below
+
+{% highlight java %}
+public class FileCopyAPI {
+  public static void copy(File srcFile, File destFile, boolean overwrite) throws FileCopyAPIException {
+    ResourceBundle resourceBundle = ResourceBundle.getBundle("FileCopyAPIResourceBundle");
+    if (!srcFile.exists()) {
+      String message = ResourceHelper.getString(resourceBundle, FileCopyAPIErrorId.SOURCE_FILE_NOT_FOUND);
+      throw new FileCopyAPIException(FileCopyAPIErrorId.SOURCE_FILE_NOT_FOUND, String.format(message, srcFile.toString()));
+    }
+    if (!srcFile.isFile()) {
+      String message = ResourceHelper.getString(resourceBundle, FileCopyAPIErrorId.NOT_A_FILE);
+      throw new FileCopyAPIException(FileCopyAPIErrorId.NOT_A_FILE, String.format(message, srcFile.toString()));
+    }
+    if (destFile.isDirectory()) {
+      destFile = new File(destFile,srcFile.getName());
+    }
+    if (srcFile.equals(destFile)) {
+      String message = ResourceHelper.getString(resourceBundle, FileCopyAPIErrorId.CANNOT_COPY_FILE_ONTO_ITSELF);
+      throw new FileCopyAPIException(FileCopyAPIErrorId.CANNOT_COPY_FILE_ONTO_ITSELF, String.format(message, srcFile.toString()));
+    }
+    if (!overwrite&&destFile.exists()) {
+      String message = ResourceHelper.getString(resourceBundle, FileCopyAPIErrorId.TARGET_FILE_ALREADY_EXISTS);
+      throw new FileCopyAPIException(FileCopyAPIErrorId.TARGET_FILE_ALREADY_EXISTS, String.format(message, destFile.toString()));
+    }
+    File destDir = destFile.getParentFile();
+    if (!destDir.exists()) {
+      if (!destDir.mkdirs()) {
+        String message = ResourceHelper.getString(resourceBundle, FileCopyAPIErrorId.PARENT_DIRECTORY_CREATION_FAILED);
+        throw new FileCopyAPIException(FileCopyAPIErrorId.TARGET_FILE_ALREADY_EXISTS, message);
+      }
+    }
+    try {
+      . . .
+      . . .
+      . . .
+    } catch (IOException e) {
+      String message = ResourceHelper.getString(resourceBundle,FileCopyAPIErrorId.FILE_COPY_FAILED);
+      throw new FileCopyAPIException(FileCopyAPIErrorId.TARGET_FILE_ALREADY_EXISTS, message, e);
+    }
+  }
+}
+{% endhighlight %}
+
+At this stage, we have solved both "Limitation #1":#limit1 and "Limitation #2":#limit2. If we review the code again, we can notice that the message gets fetched and formatted externally and passed on to the constructor of our Exception class. This means that, it impossible for the calling routine to display the message in a different language other than the one used while exception creation. 
+
+bq(#limit3). *LIMITATION #3*
+The message carried by a standard exception object is preformatted; hence the calling routine cannot translate the message to any other language at runtime.
+
+Instead of fixing this issue right away, let us identify other limitation as well. In general, when an application faces an error state, it needs to know the severity of the problem. It may use the severity to show an appropriate graphics, while prompting a dialog or it may ignore the error based on some pre-defined intelligence. 
+
+bq(#limit4). *LIMITATION #4*
+The standard exception objects do not carry the severity of the error state.
+
+Companies like Oracle, Microsoft who develop large software systems, maintain error codes for each error state, their software may run into. 
+
+For example, details associated to Oracle Database error code is as shown below 
+
+bq.. *ORA-12519: TNS:no appropriate service handler found*
+*Cause:* The listener could not find any available service handlers that are appropriate for the client connection.
+*Action:* Run "lsnrctl services" to ensure that the instance(s) have registered with the listener, and are accepting connections.
+
+p. Similarly details associated to Microsoft Windows System error code are as shown below
+
+bq.. *ERROR_REMOTE_SESSION_LIMIT_EXCEEDED*
+    1220 (0x4C4)
+    An attempt was made to establish a session to a network server, but there are already too many sessions established to that server.
+
+p. For more details please visit the following pages
+* "Microsoft Windows System Error Codes":http://msdn.microsoft.com/en-us/library/windows/desktop/ms681381%28v=vs.85%29.aspx
+* "Oracle Database Error Messages":http://docs.oracle.com/cd/B28359_01/server.111/b28278/toc.htm
+
+p. The error codes help the end-users to easily report various error scenarios, which in turn help software companies to quickly resolve the problems. Since error codes remain the same across different languages, developers can quickly understand the problem, even if the end-users had given the problem details in a different language. Like error codes, there are several other properties which can be associated to an exception. 
+
+bq(#limit5). *LIMITATION #5*
+The standard exception objects do not carry error code or any other property associated to the actual error. For example, additional properties may help to identify an error as an input validation error or a system error. 
+
+h2. Summary
+
+The list of limitations identified with the conventional exception handling mechanism are
+# The constructors of default exception classes take string as the message. To make the code I18N compliant, additional code need to be written to fetch the message and pass it to the constructor.
+# The standard exception objects carry only the formatted message. It does not assist the calling routine to programmatically identify the cause.
+# The message carried by a standard exception object is preformatted; hence the calling routine cannot translate the message to any other language at runtime.
+# The standard exception objects do not carry the severity of the error state.
+# The standard exception objects do not carry error code or any other property associated to the actual error. For example, additional properties may help to identify an error as an input validation error or a system error
