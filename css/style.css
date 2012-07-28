@@ -1432,3 +1432,7 @@ pre {
 p {
 	text-align: justify;
 }
+
+.twtr-doc p {
+	text-align: left;
+}
