@@ -1,0 +1,244 @@
+---
+layout: post
+title: RBAC using Apache Shiro
+tags: Java, Security, Shiro, Maven, Spring, Servlet
+excerpt: A simple example to demonstrate role-based access control using Apache Shiro.
+sourceURL: https://github.com/sangeeth/apache-shiro-samples/tree/master/simple-rbac   
+---
+
+[realm]http://shiro.apache.org/realm.html
+[shiro]http://shiro.apache.org/
+[spring]http://www.springsource.org/spring-framework
+[requires-permissions]http://shiro.apache.org/static/current/apidocs/org/apache/shiro/authz/annotation/RequiresPermissions.html
+[application-context-file]https://github.com/sangeeth/apache-shiro-samples/blob/master/simple-rbac/src/main/webapp/WEB-INF/applicationContext.xml
+
+h1. Overview
+
+In this blog, I will explain how to do role-based access control (RBAC) in a web application using Servlets, "Spring":spring and "Apache Shiro":shiro.
+
+!images/rbac-using-shiro/rbac-using-shiro.png(Functional Model)!
+
+As shown in the above figure, the application have four users; @root@, @guest@, @gandhi@ and @bose@. Each one of them have different roles. The application provides a simple web-based user interface to access a protected service (some kind of facade). The users need special privileges to access each of the operation provided by the protected service. A screenshot of the application is shown below.
+
+!images/rbac-using-shiro/root_home.png(Application)! 
+
+h1. Realm
+
+The protected service provides access to four different resources. Each resource may represent certain set of entities and there could be one or more actions associated to the resource, either to access the entities managed by the resource or to simply utilize the features of the resource. The following table summarizes them.
+
+|_. Resource |_. Description |_. Actions |_. Entities |
+| *user-roles* | A resource to manage users and roles in the application. | @read@ users and roles | Each user in the application is an entity. Further, each role defined in the application may be considered as entity as well. Basically, users need special privileges to manage user & role data. |
+| *calculator* | A resource to do addition and subtraction. | @subtract@ or @add@ two numbers | @none@ |
+| *filesystem* | A resource to access to the files in the server. For example, listing the files in the user home directory. | @read@ files | @home@ directory is an entity. In fact each file or directory managed by the file system is an entity |
+| *system* | A resource to access the system data of the server. For example, server system time. | @read@ time | @time@ is an entity. Apart from this one may consider attributes like @OS name@, @processor type@, @OS version@, @IP Address@ etc., are entities |
+
+
+Based on the above resource definitions, a "Realm":http://shiro.apache.org/realm.html for the application is defined as shown below
+
+<div class="table">
+    <div class="table-row">
+        <div class="table-cell">
+*USERS*
+
+|_. Username |_. Password |_. Roles |
+| root   | secret | admin     |
+| guest  | guest  | @-none-@ |
+| gandhi | 12345  | role1,role2 |
+| bose   | 67890  | role2     |
+        </div>
+        <div>
+
+*ROLES*
+
+|_. Role |_. Permissions |
+| admin  | @All permissions@ |
+| role1  | @filesystem:*@<br>@system:*@ |
+| role2  | @calculator:add,subtract@ |
+
+        </div>
+    </div>
+</div>
+
+For this application, I have used INI Realm defined in "shiro.ini":https://github.com/sangeeth/apache-shiro-samples/blob/master/simple-rbac/src/main/resources/shiro.ini. 
+
+h1. Protecting the Web Application
+
+As I used Spring, the Servlet filter and context listeners of "Shiro":shiro, need to be defined as shown below in the web.xml file. 
+
+{% highlight xml %}
+<web-app version="2.5">
+    <listener>
+        <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
+    </listener>
+    
+    <listener>
+        <listener-class>org.apache.shiro.web.env.EnvironmentLoaderListener</listener-class>
+    </listener>    
+    
+    <!-- The filter-name matches name of a 'shiroFilter' bean inside applicationContext.xml -->
+    <filter>
+        <filter-name>shiroFilter</filter-name>
+        <filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
+        <init-param>
+            <param-name>targetFilterLifecycle</param-name>
+            <param-value>true</param-value>
+        </init-param>
+    </filter>
+    
+    <filter-mapping>
+        <filter-name>shiroFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+        <dispatcher>REQUEST</dispatcher> 
+        <dispatcher>FORWARD</dispatcher> 
+        <dispatcher>INCLUDE</dispatcher> 
+        <dispatcher>ERROR</dispatcher>
+    </filter-mapping>
+    ...
+    ...
+</web-app>
+{% endhighlight %}
+
+Then in the "applicationContext.xml":application-context-file file, I had to define the "Realm":realm and configure "Shiro":shiro to use it.
+
+{% highlight xml %}
+<beans>
+    <bean id="iniRealm" class="org.apache.shiro.realm.text.IniRealm">
+        <property name="resourcePath" value="classpath:/shiro.ini" />
+    </bean>
+
+    <bean id="securityManager" class="org.apache.shiro.web.mgt.DefaultWebSecurityManager">
+        <property name="realm" ref="iniRealm" />
+    </bean>
+    
+    <bean id="lifecycleBeanPostProcessor" class="org.apache.shiro.spring.LifecycleBeanPostProcessor" />
+
+    <bean class="org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator" 
+          depends-on="lifecycleBeanPostProcessor" />
+    
+    <bean class="org.apache.shiro.spring.security.interceptor.AuthorizationAttributeSourceAdvisor">
+        <property name="securityManager" ref="securityManager" />
+    </bean>
+    
+    <bean id="shiroFilter" class="org.apache.shiro.spring.web.ShiroFilterFactoryBean">
+        <property name="securityManager" ref="securityManager" />
+        <property name="loginUrl" value="/login" />
+        <property name="successUrl" value="/home/" />
+
+        <property name="filterChainDefinitions">
+            <value>
+                /home/** = authc
+            </value>
+        </property>
+    </bean>
+    ...
+    ...
+</beans>
+{% endhighlight %}
+
+For @filterChainDefinitions@, I have mapped @authc@ filter to the URL pattern @/home/**/@. This configuration ensures that all URLs with pattern @/home/**@ are protected by a form-based authentication filter. The complete list of readymade Shiro filters are listed "here":http://shiro.apache.org/web.html#Web-DefaultFilters. 
+
+h1. Protecting the Service
+
+I have used "Shiro":shiro Annotation API named "@@RequiresPermissions@":requires-permissions, to protected each method as shown below.
+
+{% highlight java %}
+public class ProtectedService {
+    private static final List<String> USERS = Arrays.asList("root","guest","gandhi","bose");
+    
+    private static final List<String> ROLES = Arrays.asList("admin","guest","role1","role2");
+    
+    @RequiresPermissions("user-roles:read")
+    public List<String> getUsers() {
+        return USERS;
+    }
+    
+    @RequiresPermissions("user-roles:read")
+    public List<String> getRoles() {
+        return ROLES;
+    }
+    
+    @RequiresPermissions("system:read:time")
+    public Date getSystemTime() {
+        return Calendar.getInstance().getTime();
+    }
+    
+    @RequiresPermissions("calculator:add")
+    public int sum(int a, int b) {
+        return a+b;
+    }
+    
+    @RequiresPermissions("calculator:subtract")
+    public int diff(int a, int b) {
+        return a-b;
+    }
+    
+    @RequiresPermissions("filesystem:read:home")
+    public List<String> getHomeFiles() {
+        File homeDir = new File(System.getProperty("user.home"));
+        return Arrays.asList(homeDir.list());
+    }
+
+    public String getGreetingMessage(String name) {
+        return String.format("Hello %s",name);
+    }
+}
+{% endhighlight %}
+
+Then it need to be defined in the "applicationContext.xml":application-context-file as shown below.
+
+{% highlight xml %}
+<beans>
+    ...
+    ...
+    <bean id="protectedService" class="com.sangeethlabs.shiro.simplerbac.ProtectedService">
+    </bean>
+</beans>
+{% endhighlight %}
+
+Now "Shiro":shiro with "Spring":spring, will take care of protecting the bean !
+
+h1. Maven Dependencies
+
+The list of Maven artifacts required for using "Shiro":shiro and "Spring":spring in this application are listed below.
+
+|_. Group |_. Artifact |_. Version |_. Comments |
+|/4. org.apache.shiro | shiro-core | 1.2.1 | |
+| shiro-web | 1.2.1 | Includes Servlet filters and context listeners to protected the web application |
+| shiro-spring | 1.2.1 | As the name suggests it is required for integrating with Spring |
+| shiro-aspectj | 1.2.1 | Required for Shiro annotations |
+|/2. org.slf4j | slf4j-api| 1.6.4 |/2. @shiro-core@ needs "SLF4J":http://slf4j.org |
+| slf4j-jdk14 | 1.6.4 |
+|/2. org.springframework | spring-context | 3.1.2.RELEASE|/2. @shiro-spring@ needs these artifacts |
+| spring-web | 3.1.2.RELEASE |
+| commons-beanutils | commons-beanutils | 1.8.0 | @shiro-core@ needs this artifact |
+| commons-lang | commons-lang | 2.4 |  @shiro-aspectj@ needs this artifact |
+| cglib | cglib | 2.2 | CGLIB is required for Spring AOP. Please read "this topic":http://www.mkyong.com/spring/spring-aop-error-cannot-proxy-target-class-because-cglib2-is-not-available/  for more details |
+
+In order to view complete set of dependencies for this application, please refer the "pom.xml":https://github.com/sangeeth/apache-shiro-samples/blob/master/simple-rbac/pom.xml.
+
+h1. Reference
+
+* "Apache Shiro Web Support":http://shiro.apache.org/web.html
+* "What's New in Apache Shiro 1.2":http://www.stormpath.com/blog/whats-new-apache-shiro-12
+* "Java Authorization Guide with Apache Shiro":http://shiro.apache.org/java-authorization-guide.html
+* "Apache Shiro Realm":realm
+* "INI Configuration":http://shiro.apache.org/configuration.html#Configuration-INIConfiguration
+* "More samples in my Github repository":https://github.com/sangeeth/apache-shiro-samples
+
+h1. More Screenshots
+
+h2. Root user login
+
+!images/rbac-using-shiro/root_login.png!
+
+h2. Root user accessing @getUsers@
+
+!images/rbac-using-shiro/root_getusers.png!
+
+h2. Guest user accessing @getUsers@
+
+!images/rbac-using-shiro/guest_getusers.png!
+
+h2. Guest user accessing @getGreetingMessage@
+
+!images/rbac-using-shiro/guest_getgreetingmessage.png!
