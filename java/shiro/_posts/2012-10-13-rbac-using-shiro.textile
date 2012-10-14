@@ -12,9 +12,9 @@ sourceURL: https://github.com/sangeeth/apache-shiro-samples/tree/master/simple-r
 [requires-permissions]http://shiro.apache.org/static/current/apidocs/org/apache/shiro/authz/annotation/RequiresPermissions.html
 [application-context-file]https://github.com/sangeeth/apache-shiro-samples/blob/master/simple-rbac/src/main/webapp/WEB-INF/applicationContext.xml
 
-h1. Overview
+h1. Introduction
 
-In this blog, I will explain how to do role-based access control (RBAC) in a web application using Servlets, "Spring":spring and "Apache Shiro":shiro.
+In this blog, I will explain how to do role-based access control (RBAC) in a web application using Servlets, "Spring IoC":spring and "Apache Shiro":shiro.
 
 !images/rbac-using-shiro/rbac-using-shiro.png(Functional Model)!
 
@@ -22,7 +22,14 @@ As shown in the above figure, the application have four users; @root@, @guest@, 
 
 !images/rbac-using-shiro/root_home.png(Application)! 
 
-h1. Realm
+The key steps in implementing the application using "Apache Shiro":shiro and "Spring IoC":spring are
+# Defining the Shiro Realm
+# Protecting the Web Application
+# Protecting the Service
+
+In the following sections, I will explain what is involved in doing the above three steps, what are the Maven dependencies and finally how to run the application.
+
+h1. Defining the Shiro Realm
 
 The protected service provides access to four different resources. Each resource may represent certain set of entities and there could be one or more actions associated to the resource, either to access the entities managed by the resource or to simply utilize the features of the resource. The following table summarizes them.
 
@@ -63,7 +70,7 @@ For this application, I have used INI Realm defined in "shiro.ini":https://githu
 
 h1. Protecting the Web Application
 
-As I used Spring, the Servlet filter and context listeners of "Shiro":shiro, need to be defined as shown below in the web.xml file. 
+As I used "Spring IoC":spring, the Servlet filter and context listeners of "Shiro":shiro, need to be defined as shown below in the "web.xml":https://github.com/sangeeth/apache-shiro-samples/blob/master/simple-rbac/src/main/webapp/WEB-INF/web.xml. 
 
 {% highlight xml %}
 <web-app version="2.5">
@@ -215,6 +222,18 @@ The list of Maven artifacts required for using "Shiro":shiro and "Spring":spring
 | cglib | cglib | 2.2 | CGLIB is required for Spring AOP. Please read "this topic":http://www.mkyong.com/spring/spring-aop-error-cannot-proxy-target-class-because-cglib2-is-not-available/  for more details |
 
 In order to view complete set of dependencies for this application, please refer the "pom.xml":https://github.com/sangeeth/apache-shiro-samples/blob/master/simple-rbac/pom.xml.
+
+h1. Running the Application
+
+In order to build and run the application, referred in this blog, follow the steps mentioned below
+
+{% highlight text %}
+$ git clone https://github.com/sangeeth/apache-shiro-samples.git
+$ cd apache-shiro-samples/simple-rbac
+$ mvn install
+{% endhighlight %}
+
+Deploy the @war@ on any servlet container and access it.
 
 h1. Reference
 
