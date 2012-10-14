@@ -3,9 +3,8 @@ layout: master
 title: Blog
 ---
 
-<h1>Blog</h1>
-
-{% for post in site.posts limit:10 %}					
+{% for post in site.posts limit:10 %}
+<div class="site-post-entry">
 <h4><a title="{{ post.title }}" href="{{ post.url }}">{{ post.title }}</a></h4>
 <div class="metabar">
 <em>
@@ -14,6 +13,5 @@ title: Blog
 </em>
 </div>																					
 {{ post.excerpt }} &nbsp;<a title="{{ post.title }}" href="{{ post.url }}">[&hellip;]</a>
-<br/><br/>
-
+</div>
 {% endfor %}
