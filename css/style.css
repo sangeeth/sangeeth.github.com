@@ -143,28 +143,6 @@ blockquote, input, textarea, .searchform .searchfield, .wp-caption, .widget-defa
     border-style: solid;
     border-width: 1px;
 }
-#carousel .content ul li a img {
-    -moz-border-bottom-colors: none;
-    -moz-border-image: none;
-    -moz-border-left-colors: none;
-    -moz-border-right-colors: none;
-    -moz-border-top-colors: none;
-    background: none repeat scroll 0 0 #FFFFFF;
-    border-color: #CCCCCC #DDDDDD #DDDDDD #CCCCCC;
-    border-style: solid;
-    border-width: 1px;
-}
-#carousel .content ul li a:hover img {
-    -moz-border-bottom-colors: none;
-    -moz-border-image: none;
-    -moz-border-left-colors: none;
-    -moz-border-right-colors: none;
-    -moz-border-top-colors: none;
-    background: none repeat scroll 0 0 #DDDDDD;
-    border-color: #BBBBBB #CCCCCC #CCCCCC #BBBBBB;
-    border-style: solid;
-    border-width: 1px;
-}
 .widget_flickrRSS a img, .wp125_write_ads_widget.widget #wp125adwrap_2c .wp125ad a {
     -moz-border-bottom-colors: none;
     -moz-border-image: none;
@@ -302,30 +280,32 @@ a.pagelines-blink.black-blink:active .pagelines-blink-pad, #feature_slider .fcon
 h1, h2, h3, h4, h5, h6 {
     font-weight: normal;
     line-height: 1.2em;
-    margin: 0 0 0.1em;
     padding: 0;
 }
 h1 em, h2 em, h3 em, h4 em, h5 em, h6 em, #nav em {
     font-style: italic;
     text-transform: lowercase;
 }
-h1, h1.pagetitle {
-    font-size: 2.5em;
+h1.entry-title {
+    font-size: 2em;
+    margin: 10px 0px 10px 0px;
+}
+
+h1 {
+    font-size: 1.8em;
+    margin: 15px 0px;    
 }
 h2 {
-    font-size: 2em;
+    font-size: 1.6em;
+    margin: 5px 0px;
 }
 h3 {
-    font-size: 1.5em;
+    font-size: 1.4em;
+    margin: 5px 0px;
 }
 h4 {
-    font-size: 1.3em;
-}
-h5 {
-    font-size: 1.1em;
-}
-h6 {
-    font-size: 1em;
+    font-size: 1.2em;
+    margin: 5px 0px;
 }
 .subhead {
     font-size: 0.8em;
@@ -394,11 +374,12 @@ a {
     padding-left: 15px;
     padding-right: 15px;
 }
-.one-sidebar-right #column-main .mcolumn-pad, .one-sidebar-right #container #content, .two-sidebar-right #column-main .mcolumn-pad, .two-sidebar-right #container #content {
-    padding: 2em 30px 0 15px;
+.one-sidebar-right #column-main .mcolumn-pad, 
+.one-sidebar-right #container #content {
+    padding: 10px 10px 0 0px;
 }
 .one-sidebar-left #column-main .mcolumn-pad, .one-sidebar-left #container #content, .two-sidebar-left #column-main .mcolumn-pad, .two-sidebar-left #container #content {
-    padding: 2em 15px 0 30px;
+    padding: 10px 10px 0 30px;
 }
 #page-main .content {
     border-left: 1px solid transparent;
@@ -557,137 +538,6 @@ a.site-title {
 body #wp-admin-bar #admin-bar-logo {
     line-height: 1.4em;
 }
-body.buddypress {
-    border-top: medium none;
-}
-#buddypress-page #container {
-    float: left;
-    margin: 20px auto;
-}
-#buddypress-page #content {
-    padding-right: 30px;
-}
-#buddypress-page #object-nav {
-    margin: 1em 0 0;
-    padding: 0;
-}
-#buddypress-page #item-nav {
-    margin-bottom: 1.5em;
-}
-#buddypress-page #object-nav ul li a {
-    display: block;
-    padding: 3px 12px;
-}
-#buddypress-page #subnav {
-    margin: 0 0 2.5em;
-    padding: 10px;
-}
-#buddypress-page #subnav a {
-    display: block;
-    font-size: 12px;
-    line-height: 1.2em;
-    padding: 7px;
-}
-#buddypress-page #settings-form input {
-    margin-bottom: 1.3em;
-}
-#buddypress-page div.activity-comments form textarea, #buddypress-page form#whats-new-form #whats-new-textarea textarea {
-    background: none repeat scroll 0 0 transparent;
-}
-#buddypress-page #container .submit {
-    background: none repeat scroll 0 0 transparent;
-    border: medium none;
-    margin: 0;
-    padding: 7px 0;
-}
-#buddypress-page #container .submit .auto {
-    padding: 5px;
-}
-#buddypress-page ul.button-nav {
-    list-style-type: none;
-}
-#buddypress-page form.dir-form div.dir-search {
-    width: 47%;
-}
-#buddypress-page form.dir-form div.dir-search input[type="submit"] {
-    clear: right;
-    float: right;
-    margin-right: 5px;
-    padding: 4px;
-}
-#buddypress-page .profile-fields td {
-    padding: 5px;
-}
-#buddypress-page .radio ul {
-    margin: 5px 0 1em 50px;
-}
-#buddypress-page div.item-list-tabs ul li {
-    margin: 0 5px;
-}
-#buddypress-page table.forum {
-    margin: 1.4em 0;
-    text-align: center;
-    width: 100%;
-}
-#buddypress-page table.forum th {
-    font-weight: normal;
-    padding: 5px;
-}
-#buddypress-page table.forum td {
-    padding: 0.5em;
-}
-#buddypress-page table.forum .td-poster .poster-name {
-    display: inline;
-}
-#buddypress-page table.forum .td-poster img {
-    margin-right: 5px;
-    vertical-align: middle;
-}
-#buddypress-page table.forum .td-title {
-    font-size: 1.3em;
-    text-align: left;
-}
-#buddypress-page table.forum .td-title a:hover {
-    text-decoration: underline;
-}
-#buddypress-page .standard-form #topic-meta h3 {
-    font-size: 1.9em;
-    margin: 1em 0;
-}
-#buddypress-page .standard-form .admin-links {
-    font-size: 0.8em;
-    padding: 4px 0;
-}
-#buddypress-page .item-list li {
-    margin-bottom: 1.5em;
-    padding: 0.3em 0;
-}
-#buddypress-page .item-list .item-title {
-    font-size: 1.3em;
-}
-#buddypress-page .item-list .poster-meta {
-    font-size: 1.3em;
-    font-style: italic;
-}
-#buddypress-page .item-list .poster-meta img {
-    margin-right: 10px;
-    vertical-align: middle;
-}
-#buddypress-page .item-list .post-content {
-    padding: 20px 20px 10px;
-}
-#buddypress-page #item-actions {
-    margin-bottom: 1em;
-}
-#buddypress-page .activity {
-    font-size: 0.9em;
-    font-style: italic;
-}
-#buddypress-page .activity .activity-inner {
-    font-style: normal;
-    margin-bottom: 1em;
-    padding: 10px 10px 2px;
-}
 .item-avatar {
     float: left;
     margin-right: 10px;
@@ -818,54 +668,7 @@ body.buddypress {
 #site.fullwidth #pagelines_content .clip, #site.fullwidth #buddypress-page .clip {
     width: 48%;
 }
-.clip_box {
-    margin-bottom: 0.5em;
-    padding: 1em 0;
-}
-.clip_box .hentry {
-    padding: 0;
-}
-.clip {
-    clear: none;
-    float: left;
-    width: 100px;
-}
-.clip-right {
-    float: right;
-    width: 100px;
-}
-.clip .clip-header {
-    display: table-cell;
-    padding: 4px 0;
-    width: 10000px;
-}
-.clip .clip-thumb a {
-    float: left;
-    margin-right: 10px;
-}
-.clip .clip-thumb img {
-    display: block;
-    margin: 0 0 0.4em;
-    padding: 2px;
-}
-.clip .entry-title {
-    font-size: 1.4em;
-    line-height: 1.2em;
-    padding: 0;
-}
-.clip .metabar {
-    line-height: 1em;
-    padding: 0;
-}
-.clip .metabar em {
-    font-size: 11px;
-}
-.clip .post-excerpt {
-    font-size: 1em;
-    line-height: 1.5em;
-    margin-bottom: 1.5em;
-    margin-top: 0.5em;
-}
+
 .post-nav, .current_posts_info {
     clear: both;
     font-size: 12px;
@@ -1250,37 +1053,7 @@ a.plimage {
     font-size: 12px;
     padding: 2px;
 }
-#callout {
-    overflow: hidden;
-}
-#callout .content-pad {
-    padding: 30px 17px;
-}
-#callout .callout_text {
-    float: left;
-    width: 70%;
-}
-#callout .callout_text-pad {
-    padding: 0 10px;
-}
-#callout .callout_text.noimage {
-    width: 100%;
-}
-#callout .callout_head {
-    font-size: 2em;
-}
-#callout .callout_copy {
-    font-size: 0.9em;
-}
-#callout .callout_image a {
-    display: block;
-    line-height: 1em;
-}
-#callout .callout_image {
-    float: right;
-    text-align: center;
-    width: 30%;
-}
+
 .typekit-badge {
     display: none !important;
 }
@@ -1303,112 +1076,6 @@ a.plimage {
     margin: 0 2px;
     padding: 3px 7px 6px;
     text-decoration: none;
-}
-table {
-    width: 100%;
-}
-.hentry table, #comments table {
-    margin-bottom: 1em;
-}
-.hentry table th, #comments table th {
-    font-size: 1.1em;
-    font-weight: normal;
-    padding: 0.3em;
-    text-align: center;
-}
-.hentry table td, #comments table td {
-    padding: 0.35em 0.6em;
-    text-align: center;
-}
-.hentry table .label, #comments table .label {
-    text-align: left;
-}
-.mediablock {
-    overflow: visible;
-}
-.mediablock-image {
-    float: left;
-    margin-right: 10px;
-}
-.iconlist .mediablock-image {
-    padding-top: 0.4em;
-}
-.mediablock-content {
-    display: table-cell;
-    vertical-align: top;
-    width: 10000px;
-}
-.iconlist li {
-    margin-bottom: 0.5em;
-}
-.ui-img-big {
-    margin-right: 15px;
-}
-.styled-list {
-    list-style-type: none;
-}
-.wp-caption {
-    border-radius: 3px 3px 3px 3px;
-    margin-bottom: 1em;
-    max-width: 98%;
-    padding: 5px;
-    text-align: center;
-}
-.wp-caption-text {
-    font-size: 11px;
-    line-height: 16px;
-    margin: 0;
-    padding: 6px 3px 2px;
-    text-align: center;
-}
-.wp-caption-dd {
-    font-size: 11px;
-    line-height: 17px;
-    margin: 0;
-    padding: 0 4px 5px;
-}
-.wp-caption img {
-    border: 0 none;
-    margin: 0;
-    padding: 0;
-}
-.wp-caption-dd {
-    font-size: 11px;
-    line-height: 17px;
-    margin: 0;
-    padding: 0 4px 5px;
-}
-#twitterbar .content .tbubble {
-    background: url("images/twitter-balloon.png") no-repeat scroll 0 12px transparent;
-    font-style: italic;
-    padding: 12px 25px;
-}
-#twitterbar .twitteraccount {
-    font-style: normal;
-}
-.alignright {
-}
-.alignleft {
-}
-.alignnone {
-}
-.aligncenter {
-}
-.avatar {
-}
-.wp-caption {
-}
-.wp-caption-text {
-}
-.gallery {
-}
-.gallery-caption {
-}
-.sticky {
-}
-.bypostauthor {
-}
-.wp-smiley {
 }
 
 .highlight {
@@ -1435,4 +1102,62 @@ p {
 
 .twtr-doc p {
 	text-align: left;
+}
+
+table {
+	 border-collapse: collapse;
+	 margin: 10px 0px;
+} 
+  
+th {
+   text-transform: uppercase;
+   background-color: #fafafa;
+   font-size: 0.8em;
+}
+th, td {
+   border: 1px dashed #999999;
+   padding: 10px 10px;
+}
+
+.main-page-content {
+   padding: 10px 0px 10px 0px;	
+}
+
+.site-post-entry {
+   padding: 10px 0px 10px 0px;
+   margin: 10px 0px 10px 0px;
+   border-bottom: 1px dashed #b9b9b9;	
+}
+
+
+div.table {
+	display: table;
+}
+
+div.table .table-row {
+    display: table-row;	
+}
+
+div.table-row div{
+	display: table-cell;
+	padding: 0px 15px 0px 0px;
+}
+
+.sourceURL {
+    background: url("images/folder_go.png") no-repeat scroll 0 0 transparent;
+    border: 0 none !important;
+    display: block;
+    float: right;
+    margin: 0;
+    min-height: 32px;
+    min-width: 32px;
+    outline: 0 none;
+    padding: 0;
+    text-decoration: none;
+    vertical-align: baseline;
+    width: 32px;
+}
+
+pre {
+	line-height: 1.2em !important;
 }

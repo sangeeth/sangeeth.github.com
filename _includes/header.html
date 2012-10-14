@@ -47,7 +47,7 @@
 								</li>
 								<li
 									class="page_item page-item-22
-												        {% if page.title == 'Blog' %} 
+												        {% if page.title == 'Blog' or page.layout == 'post' %} 
 												          current_page_item
 												        {% endif %}												
 												       ">
@@ -62,7 +62,7 @@
 									<a href="/archives.html">Archives</a>
 								</li>
 							</ul>
-
+ 
 							<form method="get" class="searchform"
 								onsubmit="alert('Sorry ! Yet to enable site search. :-)');return false;">
 								<fieldset>
@@ -74,6 +74,7 @@
 										src="/css/images/search-btn.png" alt="Go" />
 								</fieldset>
 							</form>
+
 						</div>
 
 						<div class="clear"></div>
