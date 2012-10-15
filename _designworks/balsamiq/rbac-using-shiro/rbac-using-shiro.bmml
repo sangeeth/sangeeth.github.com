@@ -195,7 +195,7 @@
         <backgroundAlpha>0.25</backgroundAlpha>
         <borderColor>14540253</borderColor>
         <borderStyle>roundedDotted</borderStyle>
-        <color>16776960</color>
+        <color>15658734</color>
       </controlProperties>
     </control>
     <control controlID="48" controlTypeID="com.balsamiq.mockups::Label" x="647" y="191" w="-1" h="-1" measuredW="203" measuredH="21" zOrder="22" locked="false" isInGroup="-1">
