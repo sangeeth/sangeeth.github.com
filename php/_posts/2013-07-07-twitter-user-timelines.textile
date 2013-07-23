@@ -1,0 +1,430 @@
+---
+layout: post
+title: Loading twitter feeds using Twitter 1.1 APIs
+tags: Twitter, PHP
+excerpt: A simple article describing the steps required to access Twitter 1.1 APIs using OAuth. 
+---
+
+Text with a link to some "reference":#mylabel
+
+h2. Table of Contents
+
+"1.0 Introduction":#1_0
+"2.0 Deriving @Authorization@ HTTP Request Header Value":#2_0
+"2.1 Twitter generated OAuth params":#2_1
+"2.2 oauth_signature":#2_2
+"2.3 Building the OAuth Header Value":#2_3
+"3.0 Invoking the Twitter API using cURL":#3_0
+"4.0 Summary":#4_0
+"5.0 Appendix":#5_0
+"5.1 Reference":#5_1
+"5.2 The Twitter Class":#5_2
+
+h2. 1.0 Introduction
+
+<a name="1_0"></a>
+
+Recently Twitter retired 1.0 APIs. With 1.1 APIs, Twitter mandates authentication. True, "OAuth 1.0a":http://tools.ietf.org/html/rfc5849 based authentication. So gone are the days when we were able to access Twitter feeds using 1.0 APIs without authentication. No worries though. Twitter expects a valid value for HTTP header _Authorization_ similar to the one shown below.
+
+<a name="GET_CALL"></a>
+
+{% highlight text %}
+> GET /1.1/statuses/user_timeline.json?screen_name=sangeethlabs&trim_user=1&include_entities=&exclude_replies=1&include_rts=&count=1 HTTP/1.1
+> Host: api.twitter.com
+> Accept: */*
+> Authorization: OAuth oauth_consumer_key="sdfERdf3434sdWEddf23d", oauth_nonce="1373207246", oauth_signature_method="HMAC-SHA1", oauth_token="8749687284-XrindkI9QRm3ab8MWcQg4kXCYTz1NOS8yF1E2FFGN", oauth_timestamp="1373207246", oauth_version="1.0", oauth_signature="%2FpEI6thDB7zCYjkS93Jb8D%2FuQWjS%3D"
+{% endhighlight %}
+
+In order to derive the _Authorization_ header value, we need values for the following components.
+# _oauth_consumer_key_
+# _oauth_nonce_
+# _oauth_token_
+# _oauth_timestamp_
+# _oauth_signature_
+
+The following sections explain how the above components are derived, how it can be implemented using PHP and finally shows a simple example to fetch the latest tweet using "@/statuses/user_timeline@":https://dev.twitter.com/docs/api/1.1/get/statuses/user_timeline API. 
+
+h2. 2.0 Deriving @Authorization@ HTTP Request Header Value
+
+<a name="2_0"></a>
+
+h3. 2.1 Twitter generated OAuth params
+
+<a name="2_1"></a> The values for @oauth_consumer_key@ and @oauth_token@ need to be created from Twitter website by following the steps mentioned below
+# "Sign Up for Twitter":https://twitter.com/ in case you do not have one. 
+# "Create a new Application":https://dev.twitter.com/apps using Twitter and get the @consumer_key@ and @consumer_secret@.
+# Create your OAuth access token and secret (i.e @oauth_access_token@ and @oauth_access_token_secret@). 
+  %{color:green}*NOTE:* Once you create an Application, the same page guides you to generate the OAuth access token.%
+  
+So at this stage the OAuth parameters for which we have the values are
+
+|_.  OAuth Param |_. Value |
+|  @oauth_consumer_key@  |  @consumer_key@ |
+|  @oauth_token@         |  @oauth_access_token@ |
+
+The values of @consumer_secret@ and @oauth_access_token_secret@ are required for creating @oauth_signature@.
+
+h3. 2.2 @oauth_signature@
+
+<a name="2_2"></a> In order to create the value for _oauth_signature_, I would recommend you to read the article named "Creating a signature":https://dev.twitter.com/docs/auth/creating-signature at "Twitter developers website":https://dev.twitter.com/. In order to help PHP developers, I have translated the steps into PHP.
+
+*Step 1:* +Collecting the request method and URL+
+
+Since our objective is to fetch the latest tweets,
+
+|_. Request method | GET |
+|_. Base URL            | "https://api.twitter.com/1.1/statuses/user_timeline.json":https://dev.twitter.com/docs/api/1.1/get/statuses/user_timeline |
+
+*Step 2:* +Collecting parameters+
+
+In order to get the latest tweets from "_@sangeethlabs_":http://twitter.com/sangeethlabs, the list of *Request-parameters* required are
+
+|_. Request Param |_. Value |
+| screen_name   | sangeethlabs |
+| trim_user     | true |
+| include_entities | false |
+| exclude_replies | true |
+| include_rts | false |
+| count | 1 |
+
+%{color:green}*NOTE*: In order to know the meaning of each of the above request parameters, please read the manual of "@/statuses/user_timeline@":https://dev.twitter.com/docs/api/1.1/get/statuses/user_timeline API.% 
+
+Further, All *OAuth-parameters* other than _oauth_signature_ are also considered as parameters. So we have
+
+|_. OAuth Param |_. Value |
+| oauth_consumer_key | @consumer_key@ |
+| oauth_nonce | _(The current time)_ |
+| oauth_signature_method | HMAC-SHA1 |
+| oauth_token | @oauth_access_token@ |
+| oauth_timestamp | _(The current time)_ |
+| oauth_version | 1.0 |
+
+The following code helps to create the *Parameter string*.
+
+{% highlight php %}
+<?php
+$v = array();
+$all_params = array_merge($oauthParams, $requestParams);
+ksort($all_params);
+
+foreach($all_params as $key=>$value) {
+    $v[] = "$key=" . rawurlencode($value);
+}
+
+$parameterString = rawurlencode(implode('&', $v));
+?>
+{% endhighlight %}
+
+
+*Step 3:* +Creating the signature base string+
+
+The following code helps to create the *Signature base string* which then used to create the signature.
+
+{% highlight php %}
+<?php
+$signatureBaseString = $httpMethod 
+                       . '&' 
+                       . rawurlencode($baseURI) 
+                       . '&' 
+                       . $parameterString;
+?>
+{% endhighlight %}
+
+*Step 4:* +Getting a signing key+
+
+The following code show how to create a *Signing key*
+{% highlight php %}
+<?php
+$signing_key = rawurlencode($consumer_secret) 
+               . '&' 
+               . rawurlencode($oauth_access_token_secret);
+?>
+{% endhighlight %}
+
+*Step 5:* +Calculating the signature+
+
+{% highlight php %}
+<?php
+$oauth_signature = base64_encode(hash_hmac('sha1', $signature_base_string, $signing_key, true));
+?>
+{% endhighlight %}
+
+h3. 2.3 Building the OAuth Header Value
+
+<a name="2_3"></a>
+
+{% highlight php %}
+<?php 
+$values = array();
+foreach($oauthParams as $key=>$value) {
+    $values[] = "$key=\"" . rawurlencode($value) . "\"";
+}     
+$headerValue = 'OAuth ' . implode(', ', $values);
+?>
+{% endhighlight %}
+
+Finally, we have the value for HTTP header _Authorization_ . The following sections will show how to use the OAuth header value and invoke "@/statuses/user_timeline@":https://dev.twitter.com/docs/api/1.1/get/statuses/user_timeline API.
+
+h2. 3.0 Invoking the Twitter API using cURL
+
+<a name="3_0"></a>
+
+In order to invoke the Twitter API as mentioned "above":#GET_CALL we need the following parameters
+# url
+# request params
+# authorization header value
+
+In the previous sections we have computed the values for these three parameters. With these parameters, we can use the following code to invoke the Twitter API using "@cURL@":http://en.wikipedia.org/wiki/CURL.
+
+{% highlight php %}
+<?php
+// Invoke the Twitter API using cURL functions           
+$ch = curl_init();
+
+// Create the API URI appended with the query parameters
+$url = $this->buildURL($url, $requestParams);
+$values = array();
+foreach($queryParams as $key=>$value) {
+    $values[] = "$key=" . rawurlencode($value);
+}
+$queryString = implode('&', $values);
+return "$url?$queryString";      
+
+
+curl_setopt_array($ch,
+                  array( 
+                        CURLOPT_URL => $url,
+                        CURLOPT_HTTPHEADER => array("Authorization: $authorization_header_value"),
+                        CURLOPT_HEADER => false,
+                        CURLOPT_RETURNTRANSFER => true,
+                        CURLOPT_SSL_VERIFYPEER => false
+                  ));
+$twitter_response = curl_exec($ch);
+
+if (empty($twitter_response)) {
+	$errorMessage = curl_error($ch);
+	curl_close($ch);
+    throw new Exception($errorMessage);
+}
+
+$info = curl_getinfo($ch);
+    
+curl_close($ch);
+
+$json = json_decode($twitter_response, true);
+        
+$responseCode = $info['http_code'];
+if ($responseCode != '200') {
+    throw new Exception($json['errors'][0]['message'], 
+                        $json['errors'][0]['code']);
+}
+?>
+{% endhighlight %}
+
+h2(4_0). 4.0 Summary
+
+<a name="4_0"></a>
+
+Now using our new @Twitter@ class and with the values of @oauth_access_token@, @oauth_access_token_secret@, @consumer_key@ and @consumer_secret@, we can invoke "@/statuses/user_timeline@":https://dev.twitter.com/docs/api/1.1/get/statuses/user_timeline API to get the latest _tweet_ from "_@sangeethlabs_":http://twitter.com/sangeethlabs as shown below
+
+{% highlight php %}
+<?php
+$oauth_access_token = "...YOUR OAUTH ACCESS TOKEN...";
+$oauth_access_token_secret = "...YOUR OAUTH ACCESS TOKEN SECRET...";
+$consumer_key = "...YOUR CONSUMER KEY...";
+$consumer_secret = "...YOUR CONSUMER SECRET...";
+
+$twitter = new Twitter($oauth_access_token, 
+                 $oauth_access_token_secret,
+                 $consumer_key,
+                 $consumer_secret);
+//$twitter->setVerboseEnabled(true);
+
+try {                 
+   $json = $twitter->get("/statuses/user_timeline.json", 
+                         array(
+                            'screen_name'=>'sangeethlabs',
+                            'trim_user'=> true,
+                            'include_entities'=> false,
+                            'exclude_replies'=> true,
+                            'include_rts' => true,
+                            'count' => 1
+                         ));
+   echo "Last Tweet\n"
+        . "Time: " . $json[0]['created_at'] . "\n"
+        . "Text: " . $json[0]['text'] . "\n\n";
+} catch (Exception $e) {
+   echo "Error: {$e->getCode()} - {$e->getMessage()}\n";
+}
+?>
+{% endhighlight %}
+
+h2. 5.0 Appendix
+
+<a name="5_0"></a>
+
+h2. 5.1 Reference
+
+<a name="5_0"></a>
+
+# "stackoverflow.com - Simplest PHP example for retrieving user_timeline with Twitter API version 1.1":http://stackoverflow.com/questions/12916539/simplest-php-example-for-retrieving-user-timeline-with-twitter-api-version-1-1
+# "twitter.com - GET statuses/user_timeline":https://dev.twitter.com/docs/api/1.1/get/statuses/user_timeline
+# "twitter.com - Creating a signature":https://dev.twitter.com/docs/auth/creating-signature
+# "twitter.com - Authorizing a request":https://dev.twitter.com/docs/auth/authorizing-request
+# "ietf.org - The OAuth 1.0 protocol":http://tools.ietf.org/html/rfc5849
+# "php.net - cURL Functions":http://us3.php.net/manual/en/ref.curl.php
+
+h3. 5.2 The Twitter Class
+
+<a name="5_2"></a>
+
+<div style="height: 300px; width: 100%; overflow: auto; border: 1px solid #b9b9b9">
+{% highlight php linenos %}
+<?php
+class Twitter {
+   private $oauth_access_token = "";
+   private $oauth_access_token_secret = "";
+   private $consumer_key = "";
+   private $consumer_secret = "";
+   private $verboseEnabled = false;
+
+   function __construct($oauth_access_token, 
+                        $oauth_access_token_secret,
+                        $consumer_key,
+                        $consumer_secret) {
+        $this->oauth_access_token = $oauth_access_token; 
+        $this->oauth_access_token_secret = $oauth_access_token_secret;
+        $this->consumer_key = $consumer_key;
+        $this->consumer_secret = $consumer_secret;
+   }
+   
+   private function buildSignatureBaseString($httpMethod, $baseURI, $requestParams, $oauthParams) {
+        // Collecting parameters an building the 'Parameter string'
+        $v = array();
+        $all_params = array_merge($oauthParams, $requestParams);
+        ksort($all_params);
+        
+        foreach($all_params as $key=>$value) {
+           $v[] = "$key=" . rawurlencode($value);
+        }
+        $parameterString = rawurlencode(implode('&', $v));
+        
+        // Building the 'Signature base string'
+        return $httpMethod 
+               . '&' 
+               . rawurlencode($baseURI) 
+               . '&' 
+               . $parameterString;
+   }
+
+   private function buildAuthorizationHeaderValue($oauthParams) {
+        $r = 'OAuth ';
+        $values = array();
+        foreach($oauthParams as $key=>$value) {
+            $values[] = "$key=\"" . rawurlencode($value) . "\"";
+        }     
+        $r .= implode(', ', $values);
+        return $r;
+   }
+   
+   private function buildOuthSignature($signature_base_string) {
+        $signing_key = rawurlencode($this->consumer_secret) 
+                       . '&' 
+                       . rawurlencode($this->oauth_access_token_secret);
+                       
+        $oauth_signature = base64_encode(hash_hmac('sha1', $signature_base_string, $signing_key, true));
+        
+        return $oauth_signature;
+   }
+   
+   private function buildURL($url, $queryParams) {
+        $values = array();
+        foreach($queryParams as $key=>$value) {
+            $values[] = "$key=" . rawurlencode($value);
+        }
+        $queryString = implode('&', $values);
+        return "$url?$queryString";      
+   }
+   
+   public function setVerboseEnabled($verboseEnabled) {
+        $this->verboseEnabled = $verboseEnabled;
+   }
+   
+   public function get($api, $requestParams) { 
+        $url = "https://api.twitter.com/1.1". $api;
+    
+        $oauthParams = array( 'oauth_consumer_key' => $this->consumer_key,
+                        'oauth_nonce' => time(),
+                        'oauth_signature_method' => 'HMAC-SHA1',
+                        'oauth_token' => $this->oauth_access_token,
+                        'oauth_timestamp' => time(),
+                        'oauth_version' => '1.0');
+
+        $signature_base_string = $this->buildSignatureBaseString('GET', $url, $requestParams, $oauthParams);
+        if ($this->verboseEnabled) {        
+            echo "Signature base string:\n$signature_base_string\n\n";
+        }
+        
+        $oauth_signature = $this->buildOuthSignature($signature_base_string);
+        if ($this->verboseEnabled) {        
+            echo "OAuth signature:\n$oauth_signature\n\n";
+        }
+        $oauthParams['oauth_signature'] = $oauth_signature;
+                
+        $authorization_header_value = $this->buildAuthorizationHeaderValue($oauthParams);
+        if ($this->verboseEnabled) {
+            echo "Authorization header:\nAuthorization: $authorization_header_value\n\n";
+        }
+                   
+        // Invoke the Twitter API using cURL functions           
+        $ch = curl_init();
+        
+        // Create the API URI appended with the query parameters
+        $url = $this->buildURL($url, $requestParams);
+        if ($this->verboseEnabled) {        
+            echo "Request URL:\n$url\n\n";
+        }
+        curl_setopt_array($ch,
+                          array( 
+                                CURLOPT_URL => $url,
+                                CURLOPT_HTTPHEADER => array("Authorization: $authorization_header_value"),
+                                CURLOPT_HEADER => false,
+                                CURLOPT_RETURNTRANSFER => true,
+                                CURLOPT_SSL_VERIFYPEER => false
+                          ));
+        if ($this->verboseEnabled) {
+            curl_setopt($ch, CURLOPT_VERBOSE, TRUE); 
+        }
+        $twitter_response = curl_exec($ch);
+        
+        if (empty($twitter_response)) {
+			$errorMessage = curl_error($ch);
+			curl_close($ch);
+		    throw new Exception($errorMessage);
+        }
+        
+        $info = curl_getinfo($ch);
+            
+        curl_close($ch);
+        
+        if ($this->verboseEnabled) {
+            echo "Response Body:\n$twitter_response\n\n";
+        }
+
+        $json = json_decode($twitter_response, true);
+                
+        $responseCode = $info['http_code'];
+        if ($responseCode != '200') {
+            throw new Exception($json['errors'][0]['message'], 
+                                $json['errors'][0]['code']);
+        }
+        
+        unset( $requestParams );
+        unset( $oauthParams );
+        
+        return $json;
+    }
+}
+?>
+{% endhighlight %}
+</div>
