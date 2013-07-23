@@ -5,22 +5,20 @@ tags: Twitter, PHP
 excerpt: A simple article describing the steps required to access Twitter 1.1 APIs using OAuth. 
 ---
 
-Text with a link to some "reference":#mylabel
-
 h2. Table of Contents
 
 "1.0 Introduction":#1_0
 "2.0 Deriving @Authorization@ HTTP Request Header Value":#2_0
-"2.1 Twitter generated OAuth params":#2_1
-"2.2 oauth_signature":#2_2
-"2.3 Building the OAuth Header Value":#2_3
+"2.1 ... Twitter generated OAuth params":#2_1
+"2.2 ... oauth_signature":#2_2
+"2.3 ... Building the OAuth Header Value":#2_3
 "3.0 Invoking the Twitter API using cURL":#3_0
 "4.0 Summary":#4_0
 "5.0 Appendix":#5_0
-"5.1 Reference":#5_1
-"5.2 The Twitter Class":#5_2
+"5.1 ... Reference":#5_1
+"5.2 ... The Twitter Class":#5_2
 
-h2. 1.0 Introduction
+h2(#1_0). 1.0 Introduction
 
 <a name="1_0"></a>
 
@@ -44,11 +42,11 @@ In order to derive the _Authorization_ header value, we need values for the foll
 
 The following sections explain how the above components are derived, how it can be implemented using PHP and finally shows a simple example to fetch the latest tweet using "@/statuses/user_timeline@":https://dev.twitter.com/docs/api/1.1/get/statuses/user_timeline API. 
 
-h2. 2.0 Deriving @Authorization@ HTTP Request Header Value
+h2(#2_0). 2.0 Deriving @Authorization@ HTTP Request Header Value
 
 <a name="2_0"></a>
 
-h3. 2.1 Twitter generated OAuth params
+h3(#2_1). 2.1 Twitter generated OAuth params
 
 <a name="2_1"></a> The values for @oauth_consumer_key@ and @oauth_token@ need to be created from Twitter website by following the steps mentioned below
 # "Sign Up for Twitter":https://twitter.com/ in case you do not have one. 
@@ -64,7 +62,7 @@ So at this stage the OAuth parameters for which we have the values are
 
 The values of @consumer_secret@ and @oauth_access_token_secret@ are required for creating @oauth_signature@.
 
-h3. 2.2 @oauth_signature@
+h3(#2_2). 2.2 @oauth_signature@
 
 <a name="2_2"></a> In order to create the value for _oauth_signature_, I would recommend you to read the article named "Creating a signature":https://dev.twitter.com/docs/auth/creating-signature at "Twitter developers website":https://dev.twitter.com/. In order to help PHP developers, I have translated the steps into PHP.
 
@@ -149,7 +147,7 @@ $oauth_signature = base64_encode(hash_hmac('sha1', $signature_base_string, $sign
 ?>
 {% endhighlight %}
 
-h3. 2.3 Building the OAuth Header Value
+h3(#2_3). 2.3 Building the OAuth Header Value
 
 <a name="2_3"></a>
 
@@ -165,7 +163,7 @@ $headerValue = 'OAuth ' . implode(', ', $values);
 
 Finally, we have the value for HTTP header _Authorization_ . The following sections will show how to use the OAuth header value and invoke "@/statuses/user_timeline@":https://dev.twitter.com/docs/api/1.1/get/statuses/user_timeline API.
 
-h2. 3.0 Invoking the Twitter API using cURL
+h2(#3_0). 3.0 Invoking the Twitter API using cURL
 
 <a name="3_0"></a>
 
@@ -221,7 +219,7 @@ if ($responseCode != '200') {
 ?>
 {% endhighlight %}
 
-h2(4_0). 4.0 Summary
+h2(#4_0). 4.0 Summary
 
 <a name="4_0"></a>
 
@@ -259,11 +257,11 @@ try {
 ?>
 {% endhighlight %}
 
-h2. 5.0 Appendix
+h2(#5_0). 5.0 Appendix
 
 <a name="5_0"></a>
 
-h2. 5.1 Reference
+h2(#5_1). 5.1 Reference
 
 <a name="5_0"></a>
 
@@ -274,7 +272,7 @@ h2. 5.1 Reference
 # "ietf.org - The OAuth 1.0 protocol":http://tools.ietf.org/html/rfc5849
 # "php.net - cURL Functions":http://us3.php.net/manual/en/ref.curl.php
 
-h3. 5.2 The Twitter Class
+h3(#5_2). 5.2 The Twitter Class
 
 <a name="5_2"></a>
 
