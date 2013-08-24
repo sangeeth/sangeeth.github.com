@@ -1,0 +1,14 @@
+---
+layout: post
+title: Building Custom Hibernate User Type
+tags: Hibernate, User Type, Enum, Boolean
+excerpt: Custom Hibernate user types prove handy whenever there is a requirement to use boolean and enum data types in the entity classes. In this 
+---
+
+h2. Overview
+
+In this article, I present 
+
+
+h2. ACL Tables
+

@@ -1,0 +1,5 @@
+---
+layout: search
+searchService: http://corvidin-sangeethlabs.rhcloud.com
+---
+
