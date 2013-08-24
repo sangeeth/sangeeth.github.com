@@ -1,5 +1,5 @@
 ---
 layout: search
-searchService: http://corvidin-sangeethlabs.rhcloud.com
+searchService: http://jekyllsearch-sangeethlabs.rhcloud.com
 ---
 
